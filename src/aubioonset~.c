@@ -29,6 +29,7 @@ typedef struct _aubioonset_tilde
   fvec_t *out;
   t_inlet *inlet;
   t_outlet *onsetbang;
+  t_outlet *onsetfunc;
 } t_aubioonset_tilde;
 
 static t_int *
@@ -48,6 +49,7 @@ aubioonset_tilde_perform (t_int * w)
       if (fvec_get_sample (x->out, 0) > 0.) {
         outlet_bang (x->onsetbang);
       }
+      outlet_float(x->onsetfunc, fvec_get_sample (x->out, 1));
       /* end of block loop */
       x->pos = -1;              /* so it will be zero next j loop */
     }
@@ -118,10 +120,11 @@ aubioonset_tilde_new (t_symbol *s, int argc, t_atom *argv)
   x->threshold = aubio_onset_get_threshold(x->o);
 
   x->in = (fvec_t *) new_fvec (x->hopsize);
-  x->out = (fvec_t *) new_fvec (1);
+  x->out = (fvec_t *) new_fvec (2);
 
   x->inlet = floatinlet_new (&x->x_obj, &x->threshold);
   x->onsetbang = outlet_new (&x->x_obj, &s_bang);
+  x->onsetfunc = outlet_new (&x->x_obj, &s_float);
   return (void *) x;
 }
 
@@ -130,6 +133,7 @@ aubioonset_tilde_del (t_aubioonset_tilde *x)
 {
   inlet_free(x->inlet);
   outlet_free(x->onsetbang);
+  outlet_free(x->onsetfunc);
   del_aubio_onset(x->o);
   del_fvec(x->in);
   del_fvec(x->out);
