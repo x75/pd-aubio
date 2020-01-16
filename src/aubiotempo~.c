@@ -28,7 +28,8 @@ typedef struct _aubiotempo_tilde
   fvec_t *vec;
   fvec_t *output;
   t_outlet *tempobang;
-  t_outlet *onsetbang;
+  t_outlet *tempoval;
+  t_outlet *tempoconf;
 } t_aubiotempo_tilde;
 
 static t_int *aubiotempo_tilde_perform(t_int *w)
@@ -47,9 +48,10 @@ static t_int *aubiotempo_tilde_perform(t_int *w)
       if (x->output->data[0]) {
         outlet_bang(x->tempobang);
       }
-      if (x->output->data[1]) {
-        outlet_bang(x->onsetbang);
-      }
+      // if (x->output->data[1]) {
+      outlet_float(x->tempoval, x->output->data[3]);
+      outlet_float(x->tempoconf, x->output->data[4]);
+      // }
       /* end of block loop */
       x->pos = -1; /* so it will be zero next j loop */
     }
@@ -92,7 +94,8 @@ static void *aubiotempo_tilde_new (t_floatarg f)
 
   floatinlet_new (&x->x_obj, &x->threshold);
   x->tempobang = outlet_new (&x->x_obj, &s_bang);
-  x->onsetbang = outlet_new (&x->x_obj, &s_bang);
+  x->tempoval = outlet_new (&x->x_obj, &s_float);
+  x->tempoconf = outlet_new (&x->x_obj, &s_float);
   return (void *)x;
 }
 
